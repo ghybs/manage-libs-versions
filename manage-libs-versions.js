@@ -1,3 +1,8 @@
+/**
+ * Copyright (c) 2017 Boris Seang
+ * Manage Libs Versions
+ * ISC License
+ */
 // Adapted from Rollup
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined'
