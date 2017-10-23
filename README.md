@@ -112,9 +112,12 @@ loadJsCss.list(list, {
 document.getElementById('reload').addEventListener('click', function (event) {
   event.preventDefault();
 
+  // Read the checked Radio Inputs (i.e. which Versions the user has selected).
   var bundleVersions = bundle.readSelectedVersionsNames();
+  // Build a new URL including those Versions requests as Query part.
   var url = new URI(window.location.href).setQuery(bundleVersions);
 
+  // Reload the page with the new requested Versions.
   window.location.href = url.toString();
 });
 ```
