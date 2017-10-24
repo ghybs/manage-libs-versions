@@ -264,7 +264,9 @@
   LibSpec.prototype.makeRadioNone = function (fragment) {
     fragment = fragment || document.createDocumentFragment();
 
-    _makeRadioInputAndLabel(this, '(none)', fragment);
+    var attrs = this.mandatory ? _makeDisabledVersionInputAttributes() : null;
+
+    _makeRadioInputAndLabel(this, '(none)', fragment, attrs);
 
     this.radioNoneElement = fragment.lastChild.previousSibling;
 
@@ -370,6 +372,7 @@
    * VersionOptions is an Object with the following expected keys:
    * - name? <String> mandatory in case VersionOptions is passed as first argument.
    * - defaultVersion? <Boolean> if true, this Version is used as the Library default Version.
+   * - disabled? <Boolean> if true, the built Radio Input will be disabled. defaultVersion should not be true.
    * - assets? <Array<AssetSpec|AssetOption>>
    * @param versionName <String|VersionOptions>
    * @param options? <VersionOptions>
@@ -384,6 +387,9 @@
     this.assets = [];
     this.options = options = options || {};
     this.defaultVersion = options.defaultVersion;
+    this.disabled = options.disabled;
+
+    console.log(this.name + ': ' + JSON.stringify(options));
 
     var self = this,
         assetsData = options.assets || [];
@@ -409,6 +415,60 @@
   };
 
   /**
+   * Test the availability of each Asset in the current Version.
+   * If automaticallyEnableOrDisable is true, it will enable the associated
+   * Radio Input if all Assets are found. If any is missing, it will disable
+   * it and flag the Version as non default.
+   * @param automaticallyEnableOrDisable <Boolean>
+   * @returns {Promise}
+   */
+  VersionSpec.prototype.checkAssetsAvailability = function (automaticallyEnableOrDisable) {
+    var checks = [],
+        self = this;
+
+    this.assets.forEach(function (assetSpec) {
+      checks.push(_checkFileAvailability(assetSpec.path));
+    });
+
+    var all = Promise.all(checks);
+
+    if (automaticallyEnableOrDisable) {
+      all
+      .then(function () {
+        self.setDisabled(false);
+      })
+      .catch(function () {
+        self.defaultVersion = false;
+        self.setDisabled(true);
+      });
+    }
+
+    return all;
+  };
+
+  /**
+   * Disable the Version associated Radio Input, typically when the Version is not available
+   * or incompatible with other Libraries.
+   * @param disabled? <Boolean> if true, disables the associated Radio Input element.
+   */
+  VersionSpec.prototype.setDisabled = function (disabled) {
+    disabled = !!disabled;
+    this.disabled = disabled;
+
+    var radio = this.radioElement;
+
+    if (radio) {
+      _disableElement(radio, disabled);
+
+      var label = radio.nextSibling;
+
+      if (label) {
+        _disableElement(label, disabled);
+      }
+    }
+  };
+
+  /**
    * Make a Radio Input associated with the current Library Version.
    * @param fragment? <Node|DocumentFragment>
    * @returns {Node|DocumentFragment}
@@ -416,7 +476,9 @@
   VersionSpec.prototype.makeRadio = function (fragment) {
     fragment = fragment || document.createDocumentFragment();
 
-    _makeRadioInputAndLabel(this.libSpec, this.name, fragment);
+    var attrs = this.disabled ? _makeDisabledVersionInputAttributes() : null;
+
+    _makeRadioInputAndLabel(this.libSpec, this.name, fragment, attrs);
 
     this.radioElement = fragment.lastChild.previousSibling;
 
@@ -471,7 +533,7 @@
     }
   }
 
-  function _makeRadioInputAndLabel(libSpec, versionName, fragment) {
+  function _makeRadioInputAndLabel(libSpec, versionName, fragment, attrs) {
     var groupName = _makeLibInputGroupName(libSpec);
 
     var input = document.createElement('input');
@@ -479,11 +541,17 @@
     input.name = groupName;
     input.value = versionName;
     input.id = groupName + versionName;
+    if (attrs) {
+      _setAttributes(input, attrs);
+    }
     fragment.appendChild(input);
 
     var label = document.createElement('label');
     label.setAttribute('for', input.id);
     label.innerText = versionName;
+    if (attrs) {
+      _setAttributes(label, attrs);
+    }
     fragment.appendChild(label);
 
     return fragment;
@@ -543,6 +611,63 @@
   function _replaceAll(target, search, replacement) {
     return target.split(search).join(replacement);
   }
+
+  function _setAttributes(element, attributes) {
+    for (var attributeName in attributes) {
+      if (attributes.hasOwnProperty(attributeName)) {
+        element.setAttribute(attributeName, attributes[attributeName]);
+      }
+    }
+  }
+
+  function _addClassName(element, className, add) {
+    if (element) {
+      if (typeof add === 'undefined') {
+        add = true;
+      }
+      element.classList[add ? 'add' : 'remove'](className);
+    }
+  }
+
+  function _makeDisabledVersionInputAttributes() {
+    return {
+      disabled: 'disabled',
+      class: 'version-disabled',
+      title: 'This version is disabled'
+    }
+  }
+
+  function _disableElement(element, disable) {
+    if (element) {
+      if (typeof disable === 'undefined') {
+        disable = true;
+      }
+      disable = !!disable;
+      element.disabled = disable;
+      _addClassName(element, 'version-disabled', disable);
+      element.setAttribute('title', disable ? 'This version is disabled' : '');
+    }
+  }
+
+  function _checkFileAvailability(filePath) {
+    return new Promise(function (resolve, reject) {
+      var xhr = new XMLHttpRequest();
+
+      xhr.open('HEAD', filePath);
+      xhr.onreadystatechange = function () {
+        if (xhr.readyState === XMLHttpRequest.DONE) {
+          if (xhr.status === 200) {
+            resolve();
+          } else {
+            // xhr.status === 404 => file not found.
+            reject(xhr.status);
+          }
+        }
+      };
+      xhr.send();
+    });
+  }
+
 
   exports.Bundle = LibsBundle;
   exports.Lib = LibSpec;
