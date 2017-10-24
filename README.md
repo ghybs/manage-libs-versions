@@ -84,8 +84,8 @@ var bundle = new manageLibsVersions.Bundle({
 
 **JavaScript**
 ```javascript
-// Fill placeholders with Radio Inputs.
-bundle.insertLibVersionsRadios();
+// Fill manage placeholders with Radio Inputs.
+bundle.fillPlaceholders();
 
 // Make sure lib2 dev version assets are available.
 // If not, it will automatically disable the Radio Input and remove

@@ -107,14 +107,14 @@
   };
 
   /**
-   * For each Bundle Library, execute insertVersionsRadios() method.
+   * For each Bundle Library, execute fillPlaceholders() method.
    * Look for placeholders with `data-manage-lib` attribute which value is
    * equal to the Library name, and insert Radio Input for each Version
    * specified in `data-manage-versions` attribute.
    */
-  LibsBundle.prototype.insertLibVersionsRadios = function () {
+  LibsBundle.prototype.fillPlaceholders = function () {
     this.libs.forEach(function (libSpec) {
-      libSpec.insertVersionsRadios();
+      libSpec.fillPlaceholders();
     });
   };
 
@@ -238,14 +238,14 @@
   };
 
   /**
-   * Look for placeholders in the document with `data-manage-lib` attribute
+   * Look for placeholders in the document where `data-manage-lib` attribute
    * value is equal to the current Library name, retrieve the Versions names
    * specified in the `data-manage-versions` attribute, then create their
    * Radio Input and insert them in those placeholders.
    * `data-manage-versions` is a list of Version names, separated by at least
    * one or a combination of: white space, comma (,), semi-colon (;).
    */
-  LibSpec.prototype.insertVersionsRadios = function () {
+  LibSpec.prototype.fillPlaceholders = function () {
     var self = this,
         selector = '[data-manage-lib="' + this.name + '"]';
 
