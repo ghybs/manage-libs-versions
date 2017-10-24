@@ -70,14 +70,11 @@ var bundle = new manageLibsVersions.Bundle({
 **HTML**
 ```html
 <p>Choose a version for lib1:</p>
-<script>
-  bundle.insertLibVersionsRadioHere('lib1', ['v2.0.0', 'v1.0.0']);
-</script>
+<!-- Versions names can be separated by whitespace, comma (,) and/or semi-colon (;) -->
+<div data-manage-lib="lib1" data-manage-versions="v2.0.0, v1.0.0"></div>
 
 <p>Choose a version for lib2:</p>
-<script>
-  bundle.insertLibVersionsRadioHere('lib2', ['dev', 'v0.15.2']);
-</script>
+<div data-manage-lib="lib2" data-manage-versions="dev, v0.15.2"></div>
 
 <button id="reload">Reload with the above selected Versions</button>
 
@@ -87,6 +84,9 @@ var bundle = new manageLibsVersions.Bundle({
 
 **JavaScript**
 ```javascript
+// Fill placeholders with Radio Inputs.
+bundle.insertLibVersionsRadios();
+
 // Make sure lib2 dev version assets are available.
 // If not, it will automatically disable the Radio Input and remove
 // the defaultVersion flag.
