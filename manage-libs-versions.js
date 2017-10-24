@@ -389,8 +389,6 @@
     this.defaultVersion = options.defaultVersion;
     this.disabled = options.disabled;
 
-    console.log(this.name + ': ' + JSON.stringify(options));
-
     var self = this,
         assetsData = options.assets || [];
 
