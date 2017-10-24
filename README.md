@@ -3,7 +3,8 @@
 Easily create a list of Radio Inputs to let user choose Library Versions,
 retrieve the selection and prepare a list of Assets to be dynamically loaded.
 
-The Assets list is compatible with [load-js-css](https://github.com/ghybs/load-js-css) library.
+The Assets list can be directly passed to
+[`loadJsCss.list()`](https://github.com/ghybs/load-js-css) function.
 
 
 ## Quick usage guide
