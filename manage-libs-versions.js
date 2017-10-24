@@ -90,23 +90,6 @@
   };
 
   /**
-   * Make a Radio Input for the named Library Version.
-   * @param libName <String>
-   * @param versionName <String>
-   * @param fragment? <Node|DocumentFragment>
-   * @returns {Node|DocumentFragment}
-   */
-  LibsBundle.prototype.makeLibVersionRadio = function (libName, versionName, fragment) {
-    var versionSpec = this.getLibVersion(libName, versionName);
-
-    if (versionSpec) {
-      fragment = versionSpec.makeRadio(fragment);
-    }
-
-    return fragment;
-  };
-
-  /**
    * Make Radio Inputs for the list of named Library Versions.
    * @param libName <String>
    * @param versionsNames <String[]>
@@ -114,19 +97,11 @@
    * @returns {undefined|Node|DocumentFragment}
    */
   LibsBundle.prototype.makeLibVersionsRadios = function (libName, versionsNames, fragment) {
-    var self = this,
-        afterFirst = false;
+    var libSpec = this.getLib(libName);
 
-    versionsNames.forEach(function (versionName) {
-      if (afterFirst) {
-        if (fragment) {
-          fragment.appendChild(document.createElement('br'));
-        }
-      } else {
-        afterFirst = true;
-      }
-      fragment = self.makeLibVersionRadio(libName, versionName, fragment);
-    });
+    if (libSpec) {
+      fragment = libSpec.makeVersionsRadios(versionsNames, fragment);
+    }
 
     return fragment;
   };
@@ -240,6 +215,28 @@
     return versionSpec;
   };
 
+  LibSpec.prototype.makeVersionsRadios = function (versionsNames, fragment) {
+    var self = this,
+        afterFirst = false;
+
+    versionsNames.forEach(function (versionName) {
+      var versionSpec = self.getVersion(versionName);
+
+      if (versionSpec) {
+        if (afterFirst) {
+          if (fragment) {
+            fragment.appendChild(document.createElement('br'));
+          }
+        } else {
+          afterFirst = true;
+        }
+        fragment = versionSpec.makeRadio(fragment);
+      }
+    });
+
+    return fragment;
+  };
+
   /**
    * Look for placeholders in the document with `data-manage-lib` attribute
    * value is equal to the current Library name, retrieve the Versions names
@@ -257,7 +254,7 @@
 
       versionsNames = versionsNames.split(/[ ,;]+/);
 
-      placeholder.appendChild(self.bundle.makeLibVersionsRadios(self.name, versionsNames));
+      placeholder.appendChild(self.makeVersionsRadios(versionsNames));
     });
   };
 
