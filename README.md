@@ -3,6 +3,8 @@
 Easily create a list of Radio Inputs to let user choose Library Versions,
 retrieve the selection and prepare a list of Assets to be dynamically loaded.
 
+The Assets list is compatible with [load-js-css](https://github.com/ghybs/load-js-css) library.
+
 
 ## Quick usage guide
 
@@ -32,14 +34,15 @@ var bundle = new manageLibsVersions.Bundle({
     mandatory: true,
     versions: [{
       name: 'v2.0.0',
-      defaultVersion: true,
+      defaultVersion: true, // If no Version is specified, or the specified one is unknown, use this Version instead.
       assets: [
           manageLibsVersions.makeStylesheet(lib1PathTemplateCss, '2.0.0'),
           manageLibsVersions.makeScript(lib1PathTemplateJS, '2.0.0')
       ]
     }, {
      name: 'v1.0.0',
-     defaultVersion: true,
+     defaultVersion: false,
+     disabled: true, // This will make the Radio Input disabled.
      assets: [
          manageLibsVersions.makeStylesheet(lib1PathTemplateCss, '1.0.0'),
          manageLibsVersions.makeScript(lib1PathTemplateJS, '1.0.0')
@@ -83,30 +86,44 @@ var bundle = new manageLibsVersions.Bundle({
 
 **JavaScript**
 ```javascript
-// Read in the URL which Libraries Versions are requested.
-var url = window.location.href;
-// https://github.com/medialize/URI.js
-var urlParts = URI.parse(url);
-var queryStringParts = URI.parseQuery(urlParts.query);
+// Make sure lib2 dev version assets are available.
+// If not, it will automatically disable the Radio Input and remove
+// the defaultVersion flag.
+bundle.getLibVersion('lib2', 'dev').checkAssetsAvailability(true)
+    .then(function () {
+      loadDependenciesAndPageScript();
+    })
+    .catch(function () {
+      bundle.getLibVersion('lib2', 'v0.15.2').defaultVersion = true;
+      loadDependenciesAndPageScript();
+    });
 
-// Get the Libraries Versions assets list and select the Radio Inputs,
-// so that the user sees which Versions will be loaded.
-var list = bundle.getAndSelectVersionsAssetsList(queryStringParts);
-
-// Finally include the page script, now that lib1 and lib2 dependencies
-// are available.
-list.push({
-  type: 'script',
-  path: './index.js'
-});
-
-// https://github.com/ghybs/load-js-css
-loadJsCss.list(list, {
-  // Load scripts after stylesheets, delayed by this duration (in ms).
-  // Typically if a Library expects that its stylesheet is applied
-  // when its script executes.
-  delayScripts: 500
-});
+function loadDependenciesAndPageScript() {
+  // Read in the URL which Libraries Versions are requested.
+  var url = window.location.href;
+  // https://github.com/medialize/URI.js
+  var urlParts = URI.parse(url);
+  var queryStringParts = URI.parseQuery(urlParts.query);
+  
+  // Get the Libraries Versions assets list and select the Radio Inputs,
+  // so that the user sees which Versions will be loaded.
+  var list = bundle.getAndSelectVersionsAssetsList(queryStringParts);
+  
+  // Finally include the page script, now that lib1 and lib2 dependencies
+  // are available.
+  list.push({
+    type: 'script',
+    path: './index.js'
+  });
+  
+  // https://github.com/ghybs/load-js-css
+  loadJsCss.list(list, {
+    // Load scripts after stylesheets, delayed by this duration (in ms).
+    // Typically if a Library expects that its stylesheet is applied
+    // when its script executes.
+    delayScripts: 500
+  });
+}
 
 
 document.getElementById('reload').addEventListener('click', function (event) {
