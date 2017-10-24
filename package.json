@@ -1,6 +1,6 @@
 {
   "name": "manage-libs-versions",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Easily create a list of Radio Inputs to let user choose Library Versions, retrieve the selection and prepare a list of Assets to be dynamically loaded.",
   "main": "manage-libs-versions.js",
   "scripts": {
