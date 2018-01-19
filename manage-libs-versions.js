@@ -273,6 +273,7 @@
    * Used typically to display the requested Version and prepare the list of
    * assets to be loaded.
    * @param versionName <String>
+   * @returns {VersionSpec}
    */
   LibSpec.prototype.getAndSelectVersionSpec = function (versionName) {
     var versionSpec = this.getVersionFallback(versionName);
@@ -283,6 +284,11 @@
     }
 
     this.selectRadioNone();
+
+    // If no version spec found, return a dummy one.
+    return {
+      assets: []
+    };
   };
 
   /**
