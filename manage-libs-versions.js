@@ -468,13 +468,13 @@
 
     if (automaticallyEnableOrDisable) {
       all
-      .then(function () {
-        self.setDisabled(false);
-      })
-      .catch(function () {
-        self.defaultVersion = false;
-        self.setDisabled(true);
-      });
+          .then(function () {
+            self.setDisabled(false);
+          })
+          .catch(function () {
+            self.defaultVersion = false;
+            self.setDisabled(true);
+          });
     }
 
     return all;
