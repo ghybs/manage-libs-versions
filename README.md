@@ -6,6 +6,9 @@ retrieve the selection and prepare a list of Assets to be dynamically loaded.
 The Assets list can be directly passed to
 [`loadJsCss.list()`](https://github.com/ghybs/load-js-css) function.
 
+[![GitHub releases](https://img.shields.io/github/release/ghybs/lmanage-libs-versions.svg?label=GitHub)](https://github.com/ghybs/manage-libs-versions/releases)
+[![npm](https://img.shields.io/npm/v/manage-libs-versions.svg)](https://www.npmjs.com/package/manage-libs-versions)
+
 
 ## Quick usage guide
 
